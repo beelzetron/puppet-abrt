@@ -17,23 +17,23 @@ class abrt (
     $abrt_backtrace = false    # or "full", or "simple"
   ) {
 
-  # Install Package
-  package { 'abrt':
-    ensure => present,
-  }
+  # Install Packages
+  package { 'abrt': ensure => present, }
+  package { 'abrt-addon-ccpp': ensure => present, }
+  package { 'abrt-addon-kerneloops': ensure => present, }
 
   # Have service running (or not)
   if ($active) {
     service { ['abrtd','abrt-oops','abrt-ccpp']:
       ensure => running,
       enable => true,
-      require => Package['abrt'],
+      require => Package['abrt', 'abrt-addon-ccpp', 'abrt-addon-kerneloops'],
     }
   } else {
     service { ['abrtd','abrt-oops','abrt-ccpp']:
       ensure => stopped,
       enable => false,
-      require => Package['abrt'],
+      require => Package['abrt', 'abrt-addon-ccpp', 'abrt-addon-kerneloops'],
     }
   }
 
@@ -44,6 +44,7 @@ class abrt (
     section => '',
     setting => 'DumpLocation',
     value   => $dumplocation,
+    require => Package['abrt'],
     notify  => [Service['abrtd'], Service['abrt-oops'], Service['abrt-ccpp']]
   }
 
@@ -53,6 +54,7 @@ class abrt (
     section => '',
     setting => 'MaxCrashReportsSize',
     value   => $maxcrashreportssize,
+    require => Package['abrt'],
     notify  => [Service['abrtd'], Service['abrt-oops'], Service['abrt-ccpp']]
   }
 
@@ -62,6 +64,7 @@ class abrt (
     section => '',
     setting => 'DeleteUploaded',
     value   => $deleteuploaded,
+    require => Package['abrt'],
     notify  => [Service['abrtd'], Service['abrt-oops'], Service['abrt-ccpp']]
   }
 
